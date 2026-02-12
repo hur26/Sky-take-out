@@ -6,6 +6,7 @@ import com.sky.entity.Employee;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface EmployeeMapper {
@@ -26,4 +27,21 @@ public interface EmployeeMapper {
             "where (#{name} is null or #{name} = '' or name like concat('%', #{name}, '%')) " +
             "order by create_time desc")
     Page<Employee> pageQuery(EmployeePageQueryDTO employeePageQueryDTO) ;
+
+    @Update("<script>"
+            + "UPDATE employee "
+            + "<set>"
+            + "<if test='name != null'>name = #{name},</if>"
+            + "<if test='username != null'>username = #{username},</if>"
+            + "<if test='password != null'>password = #{password},</if>"
+            + "<if test='phone != null'>phone = #{phone},</if>"
+            + "<if test='sex != null'>sex = #{sex},</if>"
+            + "<if test='idNumber != null'>idNumber = #{idNumber},</if>"
+            + "<if test='updateTime != null'>updateTime = #{updateTime},</if>"
+            + "<if test='updateUser != null'>updateUser = #{updateUser},</if>"
+            + "<if test='status != null'>status = #{status},</if>"
+            + "</set>"
+            + "WHERE id = #{id}"
+            + "</script>")
+    void update(Employee employee);
 }
