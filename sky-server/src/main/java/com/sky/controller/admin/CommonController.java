@@ -46,8 +46,8 @@ public class CommonController {
             return Result.success(filepath) ;
         } catch (IOException e) {
             log.info("文件上传失败：{}",e);
-            throw new RuntimeException(e);
         }
+        return  Result.error("文件上传失败");
     }
 
     private String getSuffixFromMimeType(String mimeType) {
