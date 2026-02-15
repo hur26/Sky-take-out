@@ -1,8 +1,11 @@
 package com.sky.mapper;
 
+import com.github.pagehelper.Page;
 import com.sky.annotation.AutoFill;
+import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.enumeration.OperationType;
+import com.sky.vo.DishVO;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
@@ -25,4 +28,26 @@ public interface DishMapper {
     @Options(useGeneratedKeys = true, keyProperty = "id")
     @AutoFill(OperationType.INSERT)
     void insert(Dish dish) ;
+
+
+    @Select("<script>" +
+            "select d.*, c.name as categoryName " +
+            "from dish d left outer join category c on d.category_id = c.id " +
+            "<where>" +
+            "   <if test='name != null and name != \"\"'> " +
+            "       and d.name like concat('%', #{name}, '%') " +
+            "   </if>" +
+            "   <if test='categoryId != null'> " +
+            "       and d.category_id = #{categoryId} " +
+            "   </if>" +
+            "   <if test='status != null'> " +
+            "       and d.status = #{status} " +
+            "   </if>" +
+            "</where>" +
+            "order by d.create_time" +
+            "</script>")
+    Page<DishVO> pageQuery(DishPageQueryDTO dishPageQueryDTO);
+
+
+
 }
