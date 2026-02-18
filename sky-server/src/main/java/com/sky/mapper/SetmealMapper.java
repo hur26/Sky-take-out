@@ -1,8 +1,10 @@
 package com.sky.mapper;
 
+import com.github.pagehelper.Page;
 import com.sky.annotation.AutoFill;
 import com.sky.dto.CategoryDTO;
 import com.sky.dto.SetmealDTO;
+import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.entity.Setmeal;
 import com.sky.enumeration.OperationType;
 import org.apache.ibatis.annotations.Insert;
@@ -25,4 +27,19 @@ public interface SetmealMapper {
     @Insert("insert into setmeal (category_id, name, price, status, description, image) VALUES (#{categoryId},#{name},#{price},#{status},#{description},#{image})")
     @AutoFill(OperationType.INSERT)
     void insert(Setmeal setmeal);
+
+    @Select({
+            "<script>" +
+                    "select * from setmeal " +
+                    "<where>" +
+                    "<if test='name != null and name != \"\"'>" +
+                    "and name like concat('%', #{name}, '%') " +
+                    "</if>" +
+                    "<if test='categoryId != null'>" +
+                    "and categoryId = #{categoryId} " +
+                    "</if>" +
+                    "</where>" +
+                    "order by create_time desc" +
+                    "</script>"})
+    Page<Setmeal> pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
 }
