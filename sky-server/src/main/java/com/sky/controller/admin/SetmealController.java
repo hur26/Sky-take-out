@@ -47,4 +47,6 @@ public class SetmealController {
         setmealService.delete(ids);
         return Result.success();
     }
+
+
 }
