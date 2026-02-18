@@ -7,9 +7,12 @@ import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.entity.Setmeal;
 import com.sky.enumeration.OperationType;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 @Mapper
 public interface SetmealMapper {
@@ -42,4 +45,16 @@ public interface SetmealMapper {
                     "order by create_time desc" +
                     "</script>"})
     Page<Setmeal> pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
+
+
+    @Delete({"<script>" +
+            "delete from setmeal where id in " +
+            "<foreach collection='ids' item='id' open='(' separator=',' close=')'>" +
+            "#{id}" +
+            "</foreach>" +
+            "</script>"})
+    void deleteById(List<Integer> ids);
+
+    @Select("select * from setmeal where id = #{id}")
+    Setmeal getById(Integer id);
 }
