@@ -6,6 +6,7 @@ import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.enumeration.OperationType;
 import com.sky.vo.DishVO;
+import net.bytebuddy.implementation.bytecode.constant.MethodConstant;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -63,4 +64,26 @@ public interface DishMapper {
             "</script>"
     })
     void deleteByIds(List<Long> ids);
+
+    @Select("SELECT * from dish where id = #{id}")
+    Dish getById(Long id);
+
+    @Update({
+            "<script>",
+            "UPDATE dish",
+            "<set>",
+            "   <if test='name != null'>name = #{name},</if>",
+            "   <if test='categoryId != null'>category_id = #{categoryId},</if>",
+            "   <if test='price != null'>price = #{price},</if>",
+            "   <if test='image != null'>image = #{image},</if>",
+            "   <if test='description != null'>description = #{description},</if>",
+            "   <if test='status != null'>status = #{status},</if>",
+            "   <if test='updateTime != null'>update_time = #{updateTime},</if>",
+            "   <if test='updateUser != null'>update_user = #{updateUser},</if>",
+            "</set>",
+            "WHERE id = #{id}",
+            "</script>"
+    })
+    @AutoFill(OperationType.UPDATE)
+    void update(Dish dish);
 }
