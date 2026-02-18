@@ -86,4 +86,23 @@ public interface DishMapper {
     })
     @AutoFill(OperationType.UPDATE)
     void update(Dish dish);
+
+    @Select({
+            "<script>",
+            "SELECT * FROM dish",
+            "<where>",
+            "   <if test='name != null'>",
+            "       AND name LIKE CONCAT('%', #{name}, '%')",
+            "   </if>",
+            "   <if test='categoryId != null'>",
+            "       AND category_id = #{categoryId}",
+            "   </if>",
+            "   <if test='status != null'>",
+            "       AND status = #{status}",
+            "   </if>",
+            "</where>",
+            "ORDER BY create_time DESC",
+            "</script>"
+    })
+    List<Dish> list(Dish dish);
 }
