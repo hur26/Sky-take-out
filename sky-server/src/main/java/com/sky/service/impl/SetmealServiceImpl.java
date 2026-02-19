@@ -50,7 +50,7 @@ public class SetmealServiceImpl implements SetmealService {
 
     public PageResult pageQuery(SetmealPageQueryDTO setmealPageQueryDTO){
         PageHelper.startPage(setmealPageQueryDTO.getPage(),setmealPageQueryDTO.getPageSize());
-        Page<Setmeal> page  = setmealMapper.pageQuery(setmealPageQueryDTO);
+        Page<SetmealVO> page  = setmealMapper.pageQuery(setmealPageQueryDTO);
         return new PageResult(page.getTotal(),page.getResult());
     }
 
@@ -63,7 +63,7 @@ public class SetmealServiceImpl implements SetmealService {
             }
         });
         setmealMapper.deleteById(ids);
-        setmealDishMapper.deleteBySetmealId(ids);
+        setmealDishMapper.deleteBySetmealIds(ids);
     }
 
     public SetmealVO getById(Long id){
@@ -74,6 +74,23 @@ public class SetmealServiceImpl implements SetmealService {
         List<SetmealDish> dish = setmealDishMapper.getBySetmealId(id);
         setmealVO.setSetmealDishes(dish);
         return setmealVO ;
+    }
+
+    @Transactional
+    public void update(SetmealDTO setmealDTO){
+        Setmeal setmeal = new Setmeal();
+        BeanUtils.copyProperties(setmealDTO,setmeal);
+        setmealMapper.update(setmeal);
+
+        setmealDishMapper.deleteBySetmealId(setmeal.getId());
+
+        List<SetmealDish> setmealDishes = setmealDTO.getSetmealDishes();
+        if(setmealDishes != null && setmealDishes.size()>0){
+            setmealDishes.forEach(setmealDish -> {
+                setmealDish.setId(setmealDTO.getId());
+            });
+        }
+        setmealDishMapper.insert(setmealDishes);
     }
 
 

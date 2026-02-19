@@ -7,10 +7,8 @@ import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.entity.Setmeal;
 import com.sky.enumeration.OperationType;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import com.sky.vo.SetmealVO;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -32,19 +30,29 @@ public interface SetmealMapper {
     void insert(Setmeal setmeal);
 
     @Select({
-            "<script>" +
-                    "select * from setmeal " +
-                    "<where>" +
-                    "<if test='name != null and name != \"\"'>" +
-                    "and name like concat('%', #{name}, '%') " +
-                    "</if>" +
-                    "<if test='categoryId != null'>" +
-                    "and categoryId = #{categoryId} " +
-                    "</if>" +
-                    "</where>" +
-                    "order by create_time desc" +
-                    "</script>"})
-    Page<Setmeal> pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
+            "<script>",
+            "select",
+            "    s.*, c.name categoryName",
+            "from",
+            "    setmeal s",
+            "left join",
+            "    category c",
+            "on",
+            "    s.category_id = c.id",
+            "where 1=1",
+            "    <if test='name != null'>",
+            "        and s.name like concat('%',#{name},'%')",
+            "    </if>",
+            "    <if test='status != null'>",
+            "        and s.status = #{status}",
+            "    </if>",
+            "    <if test='categoryId != null'>",
+            "        and s.category_id = #{categoryId}",
+            "    </if>",
+            "order by s.create_time desc",
+            "</script>"
+    })
+    Page<SetmealVO> pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
 
 
     @Delete({"<script>" +
@@ -57,4 +65,19 @@ public interface SetmealMapper {
 
     @Select("select * from setmeal where id = #{id}")
     Setmeal getById(Long id);
+
+    @Update({"<script>" +
+            "UPDATE setmeal"+
+            "<set>"+
+            "   <if test='name != null'>name = #{name},</if> "+
+            "   <if test='categoryId != null'>category_id = #{categoryId},</if>"+
+            "   <if test='price != null'>price = #{price},</if>"+
+            "   <if test='image != null'>image = #{image},</if>"+
+            "   <if test='description != null'>description = #{description},</if>"+
+            "   <if test='status != null'>status = #{status},</if>"+
+            "</set>"+
+            "WHERE id = #{id}" +"</script>"
+    })
+    @AutoFill(OperationType.UPDATE)
+    void update(Setmeal setmeal);
 }

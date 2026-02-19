@@ -31,8 +31,11 @@ public interface SetmealDishMapper {
             "#{id}" +
             "</foreach>" +
             "</script>"})
-    void deleteBySetmealId(List<Long> ids);
+    void deleteBySetmealIds(List<Long> ids);
 
     @Select("select * from setmeal_dish where setmeal_id = #{id}")
     List<SetmealDish> getBySetmealId(Long id);
+
+    @Delete("delete from setmeal_dish where setmeal_id = #{id} ")
+    void deleteBySetmealId(Long id );
 }
