@@ -53,8 +53,8 @@ public interface SetmealMapper {
             "#{id}" +
             "</foreach>" +
             "</script>"})
-    void deleteById(List<Integer> ids);
+    void deleteById(List<Long> ids);
 
     @Select("select * from setmeal where id = #{id}")
-    Setmeal getById(Integer id);
+    Setmeal getById(Long id);
 }
