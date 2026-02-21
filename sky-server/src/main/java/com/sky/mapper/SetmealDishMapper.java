@@ -1,7 +1,9 @@
 package com.sky.mapper;
 
 import com.sky.entity.Dish;
+import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
+import com.sky.vo.DishItemVO;
 import com.sky.vo.SetmealVO;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
@@ -23,10 +25,10 @@ public interface SetmealDishMapper {
     void insert(List<SetmealDish> setmealDishes);
 
     @Select("select * from dish where id = #{setmealId}")
-     Dish getById(Long setmealId);
+    Dish getById(Long setmealId);
 
 
-    @Delete({"<script>"+"delete from setmeal_dish where id in " +
+    @Delete({"<script>" + "delete from setmeal_dish where id in " +
             "<foreach collection='ids' item='id' open='(' separator=',' close=')'>" +
             "#{id}" +
             "</foreach>" +
@@ -37,5 +39,6 @@ public interface SetmealDishMapper {
     List<SetmealDish> getBySetmealId(Long id);
 
     @Delete("delete from setmeal_dish where setmeal_id = #{id} ")
-    void deleteBySetmealId(Long id );
+    void deleteBySetmealId(Long id);
+
 }
