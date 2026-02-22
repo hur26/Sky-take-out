@@ -36,4 +36,11 @@ public class ShoppingCartController {
         return Result.success(list);
     }
 
+    @DeleteMapping("/clean")
+    @ApiOperation("清除购物车")
+    public Result clean(){
+        shoppingCartService.cleanShoppingCart();
+        return Result.success();
+    }
+
 }
