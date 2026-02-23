@@ -14,6 +14,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.awt.print.PrinterGraphics;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -71,5 +72,24 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public void cleanShoppingCart(){
         Long userId = BaseContext.getCurrentId();
         shoppingCartMapper.deleteByUserId(userId);
+    }
+
+    public void subShoppingCart(ShoppingCartDTO shoppingCartDTO){
+         ShoppingCart shoppingCart = new ShoppingCart();
+         BeanUtils.copyProperties(shoppingCartDTO,shoppingCart);
+         shoppingCart.setUserId(BaseContext.getCurrentId());
+         List<ShoppingCart> list = shoppingCartMapper.list(shoppingCart);
+         if(list!= null && list.size()>0){
+             shoppingCart = list.get(0);
+             Integer number = shoppingCart.getNumber();
+             if(number ==1 ){
+                 shoppingCartMapper.deleteById(shoppingCart.getId());
+             }
+             else{
+                 number = shoppingCart.getNumber()-1;
+                 shoppingCart.setNumber(number);
+                 shoppingCartMapper.updateNumberById(shoppingCart);
+             }
+         }
     }
 }
