@@ -41,4 +41,16 @@ public interface ShoppingCartMapper {
 
     @Delete("delete from shopping_cart where id = #{id}")
     void deleteById(Long id);
+
+    @Insert({
+            "<script>",
+            "insert into shopping_cart ",
+            "(name, image, user_id, dish_id, setmeal_id, dish_flavor, number, amount, create_time) ",
+            "values ",
+            "<foreach collection='shoppingCartList' item='sc' separator=','>",
+            "(#{sc.name},#{sc.image},#{sc.userId},#{sc.dishId},#{sc.setmealId},#{sc.dishFlavor},#{sc.number},#{sc.amount},#{sc.createTime})",
+            "</foreach>",
+            "</script>"
+    })
+    void insertBetch(List<ShoppingCart> shoppingCarts);
 }

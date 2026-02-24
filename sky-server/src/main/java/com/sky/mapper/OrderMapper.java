@@ -1,5 +1,7 @@
 package com.sky.mapper;
 
+import com.github.pagehelper.Page;
+import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
 import org.apache.ibatis.annotations.*;
 
@@ -26,21 +28,55 @@ public interface OrderMapper {
      * @param orders
      */
     @Update({
+            "<script>",
             "update orders ",
             "<set>",
-            "   <if test='cancelReason != null and cancelReason!=\"\" '> cancel_reason=#{cancelReason}, </if>",
-            "   <if test='rejectionReason != null and rejectionReason!=\"\" '> rejection_reason=#{rejectionReason}, </if>",
+            "   <if test='cancelReason != null and cancelReason != &quot;&quot;'> cancel_reason=#{cancelReason}, </if>",
+            "   <if test='rejectionReason != null and rejectionReason != &quot;&quot;'> rejection_reason=#{rejectionReason}, </if>",
             "   <if test='cancelTime != null'> cancel_time=#{cancelTime}, </if>",
             "   <if test='payStatus != null'> pay_status=#{payStatus}, </if>",
             "   <if test='payMethod != null'> pay_method=#{payMethod}, </if>",
             "   <if test='checkoutTime != null'> checkout_time=#{checkoutTime}, </if>",
             "   <if test='status != null'> status = #{status}, </if>",
-            "   <if test='deliveryTime != null'> delivery_time = #{deliveryTime} </if>",
+            "   <if test='deliveryTime != null'> delivery_time = #{deliveryTime}, </if>",
             "</set>",
-            "where id = #{id}"
+            "where id = #{id}",
+            "</script>"
     })
     void update(Orders orders);
 
 
+    @Select({
+            "<script>",
+            "select * from orders ",
+            "<where>",
+            "   <if test='number != null and number != &quot;&quot;'>",
+            "       and number like concat('%',#{number},'%')",
+            "   </if>",
+            "   <if test='phone != null and phone != &quot;&quot;'>",
+            "       and phone like concat('%',#{phone},'%')",
+            "   </if>",
+            "   <if test='userId != null'>",
+            "       and user_id = #{userId}",
+            "   </if>",
+            "   <if test='status != null'>",
+            "       and status = #{status}",
+            "   </if>",
+            "   <if test='beginTime != null'>",
+            "       and order_time &gt;= #{beginTime}",
+            "   </if>",
+            "   <if test='endTime != null'>",
+            "       and order_time &lt;= #{endTime}",
+            "   </if>",
+            "</where>",
+            "order by order_time desc",
+            "</script>"
+    })
+    Page<Orders> pageQuery(OrdersPageQueryDTO ordersPageQueryDTO);
 
+    @Select("select * from orders where id = #{id}")
+    Orders getByOrderId(Long id);
+
+    @Select("select count(id) from orders where status = #{status} ")
+    Integer countStatus(Integer status);
 }
