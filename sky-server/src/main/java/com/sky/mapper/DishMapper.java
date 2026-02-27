@@ -10,6 +10,7 @@ import net.bytebuddy.implementation.bytecode.constant.MethodConstant;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface DishMapper {
@@ -108,4 +109,20 @@ public interface DishMapper {
 
     @Select("select a.* from dish a left join setmeal_dish b on a.id = b.dish_id where b.setmeal_id = #{setmealId}")
     List<Dish> getBySetmealId(Long setmealId);
+
+
+    @Select({
+            "<script>",
+            "select count(id) from dish",
+            "<where>",
+            "  <if test='status != null'>",
+            "    and status = #{status}",
+            "  </if>",
+            "  <if test='categoryId != null'>",
+            "    and category_id = #{categoryId}",
+            "  </if>",
+            "</where>",
+            "</script>"
+    })
+    Integer countByMap(Map map);
 }

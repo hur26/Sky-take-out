@@ -18,6 +18,7 @@ import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import com.sky.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,9 @@ import java.beans.beancontext.BeanContext;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,6 +52,8 @@ public class OrderServiceImpl implements OrderService {
     private UserMapper userMapper;
     @Autowired
     private FrameworkServlet frameworkServlet;
+    @Autowired
+    private WebSocketServer webSocketServer;
 
     @Transactional
     public OrderSubmitVO submitOrder(OrdersSubmitDTO ordersSubmitDTO){
@@ -150,6 +155,15 @@ public class OrderServiceImpl implements OrderService {
             orderMapper.update(updateOrder);
         }
 
+        //通过websocket向客户端浏览器推送数据
+        Orders ordersDB = orderMapper.getByNumber(ordersPaymentDTO.getOrderNumber());
+        Map map = new HashMap();
+        map.put("typr",1);
+        map.put("orderId",ordersDB.getId());
+        map.put("content","订单号"+ordersPaymentDTO.getOrderNumber());
+        String json = JSONObject.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
+
         return vo;
     }
 
@@ -172,6 +186,7 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         orderMapper.update(orders);
+
     }
 
     public PageResult pageQuery4User(int page, int pageSize, Integer status){
@@ -361,5 +376,21 @@ public class OrderServiceImpl implements OrderService {
 
         orderMapper.update(orders);
 
+    }
+
+    public void reminder(Long id){
+        Orders orders = orderMapper.getByOrderId(id);
+
+        if(orders == null){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        Map map = new HashMap();
+        map.put("type",2);
+        map.put("orderId",id);
+        map.put("content","订单号"+orders.getNumber());
+
+        String json = JSONObject.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
     }
 }

@@ -1,12 +1,14 @@
 package com.sky.mapper;
 
 import com.github.pagehelper.Page;
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
 import org.apache.ibatis.annotations.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface OrderMapper {
@@ -85,4 +87,60 @@ public interface OrderMapper {
 
     @Select("select * from orders where status =#{status}  and order_time < #{time} ")
     List<Orders> getStatusAndOrderTiemLT(Integer status, LocalDateTime time);
+
+    @Select({
+            "<script>",
+            "select sum(amount) from orders",
+            "<where>",
+            "  <if test='begin != null'>",
+            "    and order_time &gt; #{begin}",
+            "  </if>",
+            "  <if test='end != null'>",
+            "    and order_time &lt; #{end}",
+            "  </if>",
+            "  <if test='status != null'>",
+            "    and status = #{status}",
+            "  </if>",
+            "</where>",
+            "</script>"
+    })
+    Double sumByMap(Map map);
+
+    @Select({
+            "<script>",
+            "select count(id) from orders",
+            "<where>",
+            "  <if test='begin != null'>",
+            "    and order_time &gt; #{begin}",
+            "  </if>",
+            "  <if test='end != null'>",
+            "    and order_time &lt; #{end}",
+            "  </if>",
+            "  <if test='status != null'>",
+            "    and status = #{status}",
+            "  </if>",
+            "</where>",
+            "</script>"
+    })
+    Integer CountByMap(Map map);
+
+
+    @Select({
+            "<script>",
+            "select od.name, sum(od.number) number",
+            "from order_detail od, orders o",
+            "where od.order_id = o.id and o.status = 5",
+            "<if test='begin != null'>",
+            "  and o.order_time &gt; #{begin}",
+            "</if>",
+            "<if test='end != null'>",
+            "  and o.order_time &lt; #{end}",
+            "</if>",
+            "group by od.name",
+            "order by number desc",
+            "limit 0, 10",
+            "</script>"
+    })
+    List<GoodsSalesDTO> getSalesTop10(LocalDateTime begin,LocalDateTime end);
+
 }
